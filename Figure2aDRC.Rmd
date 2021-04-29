@@ -14,6 +14,7 @@ library(gridExtra)
 library(lme4)
 library(MASS)
 library(drc)
+library(bmd)
 
 #embryo mortality data
 emortdata<- read.csv("/Users/jreyn/OneDrive/Documents/grad school/NAFHM19/Data/analysis/EmbryoMort2.csv")
@@ -25,7 +26,7 @@ emortdata
 ## where the upper limit is estimated
 
 ```{r}
-emort.m1<- drm(TotalDeath/TotalEmbryosStart ~ Treatment, weights=TotalDeath, data=emortdata, fct=LL.3(), type="binomial")
+emort.m1<- drm(TotalDeath/TotalEmbryosStart ~ Treatment, weights=TotalDeath, data=emortdata, fct=LL.2(), type="binomial")
 summary(emort.m1)
 ```
 
@@ -33,6 +34,22 @@ summary(emort.m1)
 ```{r}
 plot(emort.m1)
 ```
+
+
+Estimating the BMD and BMDL for BMR=0.1 using the excess risk definition
+
+bmd(object, bmr, backg = 0, def = c("excess", "additional", "relative", "hybrid"), interval = c("delta"), ma = FALSE, maList = NULL, display = FALSE)
+
+deguelin.m1 <- drm(r/n~dose, weights=n, data=deguelin, fct=LL.2(), type="binomial")
+
+bmd(deguelin.m1, 0.05)
+
+```{r}
+bmd(emort.m1, 0.1, def=c("excess"), interval = c("delta"), display = TRUE)
+
+```
+
+
 
 Estimating LC5, LC10, LC50, with CI using delta method:
 ```{r}
@@ -70,9 +87,8 @@ geom_point() +
 geom_ribbon(data=newdata, aes(x=Treatment, y=p, ymin=pmin, ymax=pmax), alpha=0.2) +
 geom_line(data=newdata, aes(x=Treatment, y=p)) +
 coord_trans(x="log") +
-xlab("NAFC treatment (mg/L)") + ylab("Proportion of mortality") + theme_few()
+xlab("NAFC concentration (mg/L)") + ylab("Proportion of mortality") + theme_few()
 ```
-
 
 
 
