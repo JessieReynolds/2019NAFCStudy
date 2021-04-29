@@ -26,18 +26,18 @@ emaldata
 Checking assumptions of lm for malforms:
 
 ```{r}
-emalmodel<- lm(Malform.SI ~ Treatment.mg.L., data= emaldata)
+emalmodel<- glm(Malform.SI ~ Treatment.mg.L., data= emaldata)
 plot(emalmodel)
 plot(emalmodel, 4)
 ```
-Point 16,17,18 seem be an outliers, but those are the entirety of the 21 mg/L treatment, which are important findings, so unsure how to proceed with checking these assumptions, **any help would be appreciated**
+Point 16,seem be an outlier, so unsure how to proceed with checking these assumptions
 
 Backwards stepwise regression to test significance of random factors:
 
 ```{r}
 m1 = lmer(Malform.SI  ~ Treatment.mg.L. + (Treatment.mg.L.|Rep), data= emaldata)
 m2=lmer(Malform.SI  ~ Treatment.mg.L. + (1|Rep), data= emaldata)
-#not significant, anova(m1,m2)
+#notsignificant anova(m1,m2)
 m3= lm(Malform.SI ~ Treatment.mg.L., data= emaldata)
 #not significant anova(m2,m3), rep does not influence model
 summary(m3)
