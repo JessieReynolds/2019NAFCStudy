@@ -1,0 +1,83 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+Loading data:
+```{r}
+library(dplyr)
+library(ggplot2)
+library(ggthemes)
+library(gridExtra)
+library(lme4)
+library(MASS)
+library(drc)
+etwitchdata<- read.csv("/Users/jreyn/OneDrive/Documents/grad school/NAFHM19/Data/analysis/EmbryoTwitches.csv")
+etwitchdata$Rep<- as.factor(etwitchdata$Rep)
+etwitchdata
+```
+
+
+#trying to add data type to model to help with BMD, but have to figure out what type is, not binomial, maybe multinomial? 
+#look up data types and decide
+```{r}
+etwitch.m1<- drm(Twitch ~ ï..Treatment,  data=etwitchdata, fct=LL.3())
+summary(etwitch.m1)
+```
+
+
+```{r}
+plot(etwitch.m1)
+```
+def = c("excess", "additional", "relative", "hybrid"),
+
+```{r}
+bmd(etwitch.m1, 0.1, def=c("relative"), interval = c("delta"), display = TRUE)
+
+```
+
+Estimating LC5, LC10, LC50, with CI using delta method:
+```{r}
+ED(etwitch.m1, c(5, 10, 50), interval = "delta")
+```
+
+Plotting with ggplot:
+```{r}
+newdata <- expand.grid(Treatment=exp(seq(log(0.5), log(35), length=35)))
+```
+
+```{r}
+# predictions and confidence intervals
+pm <- predict(etwitch.m1, newdata=newdata, interval="confidence")
+```
+
+```{r}
+# new data with predictions
+newdata$p <- pm[,1]
+newdata$pmin <- pm[,2]
+newdata$pmax <- pm[,3]
+```
+
+```{r}
+# plot curve
+# need to shift conc == 0 a bit up, otherwise there are problems with coord_trans
+etwitchdata$Treatment0 <- etwitchdata$ï..Treatment
+etwitchdata$Treatment0[etwitchdata$Treatment0 == 0] <- 0.5
+```
+
+
+```{r}
+# plotting the curve
+ggplot(etwitchdata, aes(x = Treatment0, y = Twitch)) +
+geom_point() + 
+geom_ribbon(data=newdata, aes(x=Treatment, y=p, ymin=pmin, ymax=pmax), alpha=0.2) +
+geom_line(data=newdata, aes(x=Treatment, y=p)) +
+coord_trans(x="log") +
+xlab("NAFC concentration (mg/L)") + ylab("Average twitches per min") + theme_few()
+```
+
+
+
+
+
+
