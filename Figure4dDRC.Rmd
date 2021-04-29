@@ -1,0 +1,80 @@
+---
+title: "Figure 4dDRC"
+output: html_notebook
+---
+
+```{r}
+library(dplyr)
+library(ggplot2)
+library(ggthemes)
+library(gridExtra)
+library(lme4)
+library(MASS)
+library(drc)
+
+lswimdata<- read.csv("/Users/jreyn/OneDrive/Documents/grad school/NAFHM19/Data/analysis/behavsimple.csv")
+lswimdata$Rep<- as.factor(lburstdata$Rep)
+lswimdata$Video<- as.factor(lburstdata$Video)
+lswimdata
+```
+
+
+Separating data into pre and post food addition:
+```{r}
+predata<- lburstdata[lburstdata$Feeding == 'Pre', ]
+predata
+  
+postdata<- lburstdata[lburstdata$Feeding == 'Post', ]
+postdata
+```
+
+```{r}
+lmiddle.m1<- drm(MiddleDuration.s. ~ Treatment, data=postdata, fct=LL.3())
+summary(lmiddle.m1)
+```
+
+```{r}
+plot(lmiddle.m1)
+
+```
+
+
+
+Plotting with ggplot:
+```{r}
+newdata <- expand.grid(Treatment=exp(seq(log(0.5), log(22), length=22)))
+```
+
+```{r}
+# predictions and confidence intervals
+pm <- predict(lmiddle.m1, newdata=newdata, interval="confidence")
+```
+
+```{r}
+# new data with predictions
+newdata$p <- pm[,1]
+newdata$pmin <- pm[,2]
+newdata$pmax <- pm[,3]
+```
+
+```{r}
+# plot curve
+# need to shift conc == 0 a bit up, otherwise there are problems with coord_trans
+postdata$Treatment0 <- postdata$Treatment
+postdata$Treatment0[postdata$Treatment0 == 0] <- 0.5
+```
+
+```{r}
+# plotting the curve
+ggplot(postdata, aes(x = Treatment0, y = MiddleDuration.s.)) +
+geom_point() + 
+geom_ribbon(data=newdata, aes(x=Treatment, y=p, ymin=pmin, ymax=pmax), alpha=0.2) +
+geom_line(data=newdata, aes(x=Treatment, y=p)) +
+coord_trans(x="log") +
+xlab("NAFC concentration (mg/L)") + ylab("Middle duration (s)") + theme_few()
+```
+
+
+
+
+

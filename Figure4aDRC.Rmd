@@ -15,8 +15,9 @@ library(gridExtra)
 library(lme4)
 library(MASS)
 library(drc)
+library(bmd)
 
-#embryo mortality data
+#larval mortality data
 lmortdata<- read.csv("/Users/jreyn/OneDrive/Documents/grad school/NAFHM19/Data/Rfiles/mortalityR.csv")
 lmortdata$Rep<- as.factor(lmortdata$Rep)
 lmortdata
@@ -26,12 +27,17 @@ lmortdata
 ## where the upper limit is estimated
 
 ```{r}
-lmort.m1<- drm(TotalDeath/Initial ~ Treatment, weights=TotalDeath, data=lmortdata, fct=LL.3(), type="binomial")
+lmort.m1<- drm(TotalDeath/Initial ~ Treatment, weights=TotalDeath, data=lmortdata, fct=LL.2(), type="binomial")
 summary(lmort.m1)
 ```
 
 ```{r}
 plot(lmort.m1)
+```
+
+BMD at 10%:
+```{r}
+bmd(lmort.m1, 0.1, def=c("excess"), interval = c("delta"), display = TRUE)
 ```
 
 Estimating LC5, LC10, LC50, with CI using delta method:
@@ -71,7 +77,7 @@ geom_point() +
 geom_ribbon(data=newdata, aes(x=Treatment, y=p, ymin=pmin, ymax=pmax), alpha=0.2) +
 geom_line(data=newdata, aes(x=Treatment, y=p)) +
 coord_trans(x="log") +
-xlab("NAFC treatment (mg/L)") + ylab("Proportion of mortality") + theme_few()
+xlab("NAFC concentration (mg/L)") + ylab("Proportion of mortality") + theme_few()
 ```
 
 ^This plot is strange, I'm a bit confused how to read it?
