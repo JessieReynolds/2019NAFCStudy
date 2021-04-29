@@ -33,6 +33,12 @@ summary(ehatch.m1)
 plot(ehatch.m1)
 ```
 
+```{r}
+bmd(ehatch.m1, 0.1, def=c("excess"), interval = c("delta"), display = TRUE)
+
+```
+
+
 Estimating LC5, LC10, LC50, with CI using delta method:
 ```{r}
 ED(ehatch.m1, c(5, 10, 50), interval = "delta")
@@ -70,10 +76,8 @@ geom_point() +
 geom_ribbon(data=newdata, aes(x=Treatment, y=p, ymin=pmin, ymax=pmax), alpha=0.2) +
 geom_line(data=newdata, aes(x=Treatment, y=p)) +
 coord_trans(x="log") +
-xlab("NAFC treatment (mg/L)") + ylab("Proportion of hatches") + theme_few()
+xlab("NAFC concentration (mg/L)") + ylab("Proportion of hatch success") + theme_few()
 ```
-
-
 
 
 
