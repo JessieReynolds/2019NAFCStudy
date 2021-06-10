@@ -80,13 +80,29 @@ emortdata$Treatment0 <- emortdata$Treatment
 emortdata$Treatment0[emortdata$Treatment0 == 0] <- 0.5
 ```
 
+Plotting curve WITH log transformed x-axis (original version)
 ```{r}
 # plotting the curve
 ggplot(emortdata, aes(x = Treatment0, y = TotalDeath/TotalEmbryosStart)) +
 geom_point() + 
 geom_ribbon(data=newdata, aes(x=Treatment, y=p, ymin=pmin, ymax=pmax), alpha=0.2) +
 geom_line(data=newdata, aes(x=Treatment, y=p)) +
-coord_trans(x="log") +
+  ggtitle("(a)")+
+  coord_trans(x="log") +
+xlab("NAFC concentration (mg/L)") + ylab("Proportion of mortality") + theme_few()
+
+```
+
+
+
+Plotting curve without log transformed x-axis (updated version):
+```{r}
+# plotting the curve
+ggplot(emortdata, aes(x = Treatment0, y = TotalDeath/TotalEmbryosStart)) +
+geom_point() + 
+geom_ribbon(data=newdata, aes(x=Treatment, y=p, ymin=pmin, ymax=pmax), alpha=0.2) +
+geom_line(data=newdata, aes(x=Treatment, y=p)) +
+  ggtitle("(a)")+
 xlab("NAFC concentration (mg/L)") + ylab("Proportion of mortality") + theme_few()
 ```
 
